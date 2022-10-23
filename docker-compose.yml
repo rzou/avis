@@ -1,0 +1,48 @@
+version: '3.2'
+services:
+  php_apache:   
+    build: 
+      context: .
+      dockerfile: ./docker/Dockerfile 
+    container_name: avis_php
+    depends_on:
+      - db
+    volumes:
+      - ./docker/vhosts:/etc/apache2/sites-enabled
+      - ./:/var/www/avis
+    ports:
+      - "8084:80"
+    networks:
+      - backend
+  db:
+    container_name: avis_mysql
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: adminpass
+      MYSQL_DATABASE: avis_db
+      MYSQL_USER: adminpass
+      MYSQL_PASSWORD: adminpass
+    volumes:
+      - db-data:/var/lib/postgresql/data:rw
+    networks:
+      - backend
+
+  phpmyadmin:
+    depends_on:
+      - db
+    container_name: avis_phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - 8088:80
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: adminpass
+    networks:
+      - backend
+
+networks:
+  backend:
+volumes:
+  db-data: 
